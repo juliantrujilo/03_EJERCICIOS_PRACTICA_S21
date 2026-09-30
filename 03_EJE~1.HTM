@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ejercicios de Práctica S21 — Componentes y JSX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg:#0f1117; --surface:#1a1f2e; --surface2:#222840; --border:#2a3352;
+  --txt:#e2e8f0; --txt-dim:#8892a4;
+  --accent:#3b82f6; --accent-glow:rgba(59,130,246,.12);
+  --green:#22c55e; --green-bg:rgba(34,197,94,.10);
+  --red:#f87171; --red-bg:rgba(248,113,113,.10);
+  --yellow:#f59e0b; --yellow-bg:rgba(245,158,11,.10);
+  --purple:#a78bfa; --purple-bg:rgba(167,139,250,.10);
+  --teal:#2dd4bf; --teal-bg:rgba(45,212,191,.10);
+  --code-bg:#0d1117; --sidebar-w:260px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.7;display:flex;min-height:100vh;user-select:none;}
+
+.sidebar{width:var(--sidebar-w);flex-shrink:0;position:fixed;top:0;left:0;bottom:0;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:24px 0 40px;display:flex;flex-direction:column;}
+.sidebar-brand{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:16px;}
+.sidebar-brand .curso{font-size:11px;color:var(--teal);font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
+.sidebar-brand h1{font-size:14px;font-weight:700;color:var(--txt);margin-top:4px;line-height:1.3;}
+.sidebar-brand .ficha{font-size:11px;color:var(--txt-dim);margin-top:2px;}
+.progress-wrap{padding:16px 20px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--txt-dim);margin-bottom:8px;}
+.progress-label span:last-child{color:var(--teal);font-weight:700;}
+.progress-bar-bg{height:6px;background:var(--surface2);border-radius:10px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:var(--teal);border-radius:10px;transition:width .4s ease;width:0%;}
+.nav-section{padding:0 12px;margin-bottom:4px;}
+.nav-label{font-size:10px;color:var(--txt-dim);letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:8px 8px 4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;color:var(--txt-dim);font-size:13px;font-weight:500;text-decoration:none;transition:background .15s,color .15s;border:none;background:none;width:100%;text-align:left;}
+.nav-item:hover{background:var(--accent-glow);color:var(--txt);}
+.nav-item.active{background:var(--accent-glow);color:var(--accent);}
+.nav-item.active .nav-dot{background:var(--accent);}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .15s;}
+.nav-item:hover .nav-dot{background:var(--txt-dim);}
+.nav-item.done{color:var(--teal);}
+.nav-item.done .nav-dot{background:var(--teal);}
+
+.main{margin-left:var(--sidebar-w);flex:1;padding:48px 56px 80px;max-width:820px;}
+
+.page-header{margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid var(--border);}
+.page-tag{font-size:11px;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:8px;}
+.page-title{font-size:28px;font-weight:700;color:var(--txt);line-height:1.2;text-wrap:balance;}
+.page-subtitle{font-size:14px;color:var(--txt-dim);margin-top:8px;}
+.page-warning{margin-top:20px;background:var(--yellow-bg);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--yellow);font-weight:500;}
+
+.intro-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px 36px;margin-bottom:52px;}
+.intro-tag{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:10px;}
+.intro-title{font-size:20px;font-weight:800;color:var(--txt);line-height:1.25;margin-bottom:10px;}
+.intro-sub{font-size:14px;color:var(--txt-dim);margin-bottom:20px;line-height:1.6;}
+.intro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.intro-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.intro-item-icon{font-size:22px;margin-bottom:8px;}
+.intro-item-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--txt-dim);margin-bottom:4px;}
+.intro-item-desc{font-size:13px;color:var(--txt);font-weight:500;line-height:1.4;}
+
+.section{margin-bottom:56px;scroll-margin-top:32px;}
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.step-badge{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;background:var(--accent-glow);color:var(--accent);border:1px solid rgba(59,130,246,.3);border-radius:6px;padding:3px 10px;white-space:nowrap;letter-spacing:.04em;flex-shrink:0;}
+.step-badge.green{background:var(--green-bg);color:var(--green);border-color:rgba(34,197,94,.3);}
+.step-badge.yellow{background:var(--yellow-bg);color:var(--yellow);border-color:rgba(245,158,11,.3);}
+.step-badge.extra{background:var(--purple-bg);color:var(--purple);border-color:rgba(167,139,250,.3);}
+.step-badge.teal{background:var(--teal-bg);color:var(--teal);border-color:rgba(45,212,191,.3);}
+.section-title{font-size:20px;font-weight:700;color:var(--txt);text-wrap:balance;}
+
+.step-list{display:flex;flex-direction:column;gap:20px;}
+.step-item{display:flex;gap:16px;}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--accent);font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.step-body{flex:1;}
+.step-body p{color:var(--txt);font-size:14px;}
+.step-body strong{color:var(--txt);font-weight:600;}
+
+.code-wrap{margin:12px 0;border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+.code-header{display:flex;align-items:center;gap:8px;background:var(--surface2);padding:8px 14px;border-bottom:1px solid var(--border);}
+.code-dots{display:flex;gap:5px;}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot.r{background:#ff5f57;} .code-dot.y{background:#febc2e;} .code-dot.g{background:#28c840;}
+.code-filename{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--txt-dim);flex:1;}
+.code-tag{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:4px;}
+.code-tag.blue{background:rgba(59,130,246,.15);color:var(--accent);}
+.code-tag.green{background:var(--green-bg);color:var(--green);}
+.code-tag.yellow{background:var(--yellow-bg);color:var(--yellow);}
+.code-tag.purple{background:var(--purple-bg);color:var(--purple);}
+pre{background:var(--code-bg);padding:18px 20px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.65;color:#abb2bf;}
+pre .c{color:#5c6370;} pre .k{color:#c678dd;} pre .s{color:#98c379;}
+pre .f{color:#61afef;} pre .n{color:#e5c07b;} pre .y{color:#d19a66;}
+pre .edit{color:#fbbf24;background:rgba(245,158,11,.12);border-radius:3px;padding:0 2px;}
+
+.callout{display:flex;gap:10px;align-items:flex-start;padding:12px 16px;border-radius:8px;font-size:13px;margin:14px 0;line-height:1.5;}
+.callout.ok{background:var(--green-bg);border:1px solid rgba(34,197,94,.2);color:var(--green);}
+.callout.err{background:var(--red-bg);border:1px solid rgba(248,113,113,.2);color:var(--red);}
+.callout.warn{background:var(--yellow-bg);border:1px solid rgba(245,158,11,.2);color:var(--yellow);}
+.callout.info{background:var(--accent-glow);border:1px solid rgba(59,130,246,.2);color:#93c5fd;}
+.callout.teal{background:var(--teal-bg);border:1px solid rgba(45,212,191,.2);color:var(--teal);}
+.callout.tip{background:var(--green-bg);border:1px solid rgba(34,197,94,.2);color:var(--green);}
+.callout-icon{font-size:15px;flex-shrink:0;margin-top:1px;}
+.callout strong{color:inherit;font-weight:600;}
+
+.table-wrap{overflow-x:auto;margin:16px 0;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:var(--surface2);color:var(--txt-dim);font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--txt);vertical-align:top;}
+td:first-child{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal);}
+tr:last-child td{border-bottom:none;}
+
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.checklist li{display:flex;align-items:flex-start;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--txt-dim);cursor:pointer;transition:all .15s;}
+.checklist li:hover{border-color:var(--teal);}
+.checklist li.marcado{background:var(--teal-bg);border-color:rgba(45,212,191,.35);color:var(--txt);}
+.check-box{width:18px;height:18px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--teal);}
+.checklist li.marcado .check-box{border-color:var(--teal);background:var(--teal-bg);}
+.checklist li strong{color:var(--txt);font-weight:600;}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:#93c5fd;}
+
+.complete-btn{display:flex;align-items:center;gap:10px;margin-top:28px;padding:14px 20px;background:var(--teal-bg);border:1px solid rgba(45,212,191,.3);border-radius:10px;color:var(--teal);font-size:14px;font-weight:600;cursor:pointer;width:100%;transition:all .2s;font-family:'Inter',sans-serif;}
+.complete-btn:hover{border-color:var(--teal);}
+.complete-btn.done{cursor:default;}
+.complete-btn .btn-icon{font-size:18px;}
+.complete-btn .btn-txt{flex:1;text-align:left;}
+.complete-btn .btn-badge{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:4px;background:rgba(45,212,191,.15);color:var(--teal);opacity:0;}
+.complete-btn.done .btn-badge{opacity:1;}
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:999;}
+
+.aprendiz-wrap{padding:14px 20px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.aprendiz-label{font-size:10px;color:var(--txt-dim);letter-spacing:.1em;text-transform:uppercase;font-weight:600;display:block;margin-bottom:6px;}
+.aprendiz-select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--txt);font-size:12.5px;font-family:'Inter',sans-serif;cursor:pointer;}
+.aprendiz-select:focus{outline:none;border-color:var(--teal);}
+.aprendiz-select.falta{border-color:var(--yellow);}
+
+.submit-wrap{margin-top:28px;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;}
+.submit-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px 20px;background:var(--accent);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;}
+.submit-btn:hover{background:#2f6fe0;transform:translateY(-1px);}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.submit-status{margin-top:10px;font-size:12.5px;text-align:center;color:var(--txt-dim);}
+.submit-status.ok{color:var(--green);}
+.submit-status.err{color:var(--red);}
+
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+<canvas class="confetti-wrap" id="confetti-canvas"></canvas>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <div class="curso">SENA ADSO · S21</div>
+    <h1>Ejercicios de Práctica</h1>
+    <div class="ficha">Ficha 3229944 · Sep 2026</div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Progreso</span><span id="progress-txt">0 / 3</span></div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+  </div>
+  <div class="aprendiz-wrap">
+    <label class="aprendiz-label" for="aprendiz-select">Aprendiz</label>
+    <select id="aprendiz-select" class="aprendiz-select">
+      <option value="">Selecciona tu nombre...</option>
+      <option>ANDRES STEVEN LOPEZ SCARPETTA</option>
+      <option>EDGAR STICK LOPEZ MURCIA</option>
+      <option>HEYDER IVAN VELASCO DELGADO</option>
+      <option>JESUS DAVID ORTIZ MUÑOZ</option>
+      <option>JHOJAN STEVEN SERRANO PATIÑO</option>
+      <option>JHON EDGARDO LUGO VILLANUEVA</option>
+      <option>JONIER STIVEN GUTIERREZ SALCEDO</option>
+      <option>JUAN PABLO PORRAS LOZANO</option>
+      <option>KEVIN MIGUEL ORTIZ TELLEZ</option>
+      <option>LAURA FERNANDA SOSA CEDIEL</option>
+      <option>LEIDY VIVIANA SANCHEZ ACOSTA</option>
+      <option>LUIS CARLOS CADENA VALENCIA</option>
+      <option>MARTIN SMITH LOPEZ MURCIA</option>
+      <option>MICHAEL FERMAN HERNANDEZ BERMUDEZ</option>
+      <option>NITSON ESTIVEN LOPEZ YUSTES</option>
+    </select>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Ejercicios</div>
+    <a class="nav-item active" href="#ej1"><span class="nav-dot"></span>1 — Crear Footer.jsx</a>
+    <a class="nav-item" href="#ej2"><span class="nav-dot"></span>2 — export/import del Footer</a>
+    <a class="nav-item" href="#ej3"><span class="nav-dot"></span>3 — App.jsx con 2 componentes</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Cierre</div>
+    <a class="nav-item" href="#checklist"><span class="nav-dot"></span>Checklist final</a>
+  </div>
+</div>
+
+<main class="main">
+
+  <div class="page-header">
+    <div class="page-tag">Sesión 21 · Práctica adicional</div>
+    <h1 class="page-title">Ejercicios de Práctica — Componentes y JSX</h1>
+    <p class="page-subtitle">SENA ADSO · Ficha 3229944 · Septiembre 2026</p>
+    <div class="page-warning">⚠️ Estos ejercicios son opcionales, para reforzar lo aprendido en 02_GUIA_COMPONENTES_JSX.html si sobra tiempo en la sesión. No introducen conceptos nuevos.</div>
+  </div>
+
+  <div class="intro-card">
+    <div class="intro-tag">¿Qué practicamos aquí?</div>
+    <div class="intro-title">El mismo patrón de la guía, aplicado a un segundo componente</div>
+    <p class="intro-sub">En la guía 02 se separó el navbar en <code>Navbar.jsx</code>. Aquí se repite exactamente el mismo proceso (crear archivo → función → export default → import → usar como etiqueta), esta vez con el <code>&lt;footer&gt;</code> — para que el patrón quede automatizado.</p>
+    <div class="intro-grid">
+      <div class="intro-item"><div class="intro-item-icon">📁</div><div class="intro-item-label">Ejercicio 1</div><div class="intro-item-desc">Crear src/Footer.jsx con el footer movido desde App.jsx</div></div>
+      <div class="intro-item"><div class="intro-item-icon">🔌</div><div class="intro-item-label">Ejercicio 2</div><div class="intro-item-desc">Exportarlo e importarlo, igual que se hizo con Navbar</div></div>
+      <div class="intro-item"><div class="intro-item-icon">🧩</div><div class="intro-item-label">Ejercicio 3</div><div class="intro-item-desc">App.jsx queda ensamblando 2 componentes: Navbar y Footer</div></div>
+    </div>
+  </div>
+
+  <!-- ════ EJERCICIO 1 ════ -->
+  <section class="section" id="ej1" data-step="ej1">
+    <div class="section-header">
+      <span class="step-badge">Ejercicio 1</span>
+      <h2 class="section-title">Crear src/Footer.jsx</h2>
+    </div>
+    <p style="color:var(--txt-dim);font-size:14px;margin-bottom:20px;">Mismo primer paso que con el navbar: crear el archivo, y mover el bloque <code>&lt;footer&gt;...&lt;/footer&gt;</code> de <code>App.jsx</code> hacia adentro de una función.</p>
+
+    <div class="step-list">
+      <div class="step-item"><div class="step-num">1</div><div class="step-body">
+        <p>Crear el archivo <code>src/Footer.jsx</code> (al lado de <code>App.jsx</code> y <code>Navbar.jsx</code>).</p>
+      </div></div>
+
+      <div class="step-item"><div class="step-num">2</div><div class="step-body">
+        <p>En <code>App.jsx</code>, cortar (Ctrl+X) el bloque completo <code>&lt;footer&gt;...&lt;/footer&gt;</code> y pegarlo (Ctrl+V) dentro de <code>Footer.jsx</code>:</p>
+        <div class="code-wrap"><div class="code-header"><div class="code-dots"><span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span></div><span class="code-filename">Bloque que se mueve de App.jsx a Footer.jsx</span><span class="code-tag blue">cortar y pegar</span></div><pre>&lt;<span class="f">footer</span> <span class="n">className</span>=<span class="s">"flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0 p-6 bg-texto text-white"</span>&gt;
+  &lt;<span class="f">p</span>&gt;© 2026 TechStore Pro&lt;/<span class="f">p</span>&gt;
+  &lt;<span class="f">p</span> <span class="n">className</span>=<span class="s">"text-sm"</span>&gt;Hecho con Tailwind CSS&lt;/<span class="f">p</span>&gt;
+&lt;/<span class="f">footer</span>&gt;</pre></div>
+        <div class="callout info"><span class="callout-icon">💡</span><span>Si tu footer quedó distinto (por ejemplo sin el <code>flex-col md:flex-row</code> del Ejercicio 3 de S20), mueve el tuyo real.</span></div>
+      </div></div>
+
+      <div class="step-item"><div class="step-num">3</div><div class="step-body">
+        <p>Envolver ese bloque en una función llamada <code>Footer</code>:</p>
+        <div class="code-wrap"><div class="code-header"><div class="code-dots"><span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span></div><span class="code-filename">frontend-react/src/Footer.jsx</span><span class="code-tag green">contenido completo (sin export todavía)</span></div><pre><span class="k">function</span> <span class="f">Footer</span>() {
+  <span class="k">return</span> (
+    &lt;<span class="f">footer</span> <span class="n">className</span>=<span class="s">"flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0 p-6 bg-texto text-white"</span>&gt;
+      &lt;<span class="f">p</span>&gt;© 2026 TechStore Pro&lt;/<span class="f">p</span>&gt;
+      &lt;<span class="f">p</span> <span class="n">className</span>=<span class="s">"text-sm"</span>&gt;Hecho con Tailwind CSS&lt;/<span class="f">p</span>&gt;
+    &lt;/<span class="f">footer</span>&gt;
+  )
+}</pre></div>
+
+        <div class="callout warn"><span class="callout-icon">⚠️</span><span>Formatea el archivo con <code>Shift + Alt + F</code> si la indentación queda desordenada al pegar.</span></div>
+        <div class="callout ok"><span class="callout-icon">✅</span><span><strong>Cómo verificar:</strong> el archivo <code>Footer.jsx</code> existe, con la función <code>Footer</code> y el JSX del footer adentro — todavía sin <code>export default</code>, eso es el Ejercicio 2.</span></div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ════ EJERCICIO 2 ════ -->
+  <section class="section" id="ej2" data-step="ej2">
+    <div class="section-header">
+      <span class="step-badge extra">Ejercicio 2</span>
+      <h2 class="section-title">export default e import</h2>
+    </div>
+    <p style="color:var(--txt-dim);font-size:14px;margin-bottom:20px;">Exactamente el mismo mecanismo del Paso 2 y 3 de la guía — esta vez sin ejemplo resuelto, para practicarlo de memoria.</p>
+
+    <div class="step-list">
+      <div class="step-item"><div class="step-num">1</div><div class="step-body">
+        <p>Al final de <code>Footer.jsx</code>, agregar la línea que lo exporta como <code>default</code> — usa el mismo formato que viste en <code>Navbar.jsx</code>:</p>
+        <div class="code-wrap"><div class="code-header"><div class="code-dots"><span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span></div><span class="code-filename">frontend-react/src/Footer.jsx</span><span class="code-tag green">agregar al final</span></div><pre><span class="edit"><span class="k">export default</span> Footer</span></pre></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Recordatorio</th><th>Regla</th></tr></thead>
+            <tbody>
+              <tr><td>El nombre después de export default</td><td>Debe coincidir exactamente con <code>function Footer()</code> — mismas mayúsculas</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div></div>
+
+      <div class="step-item"><div class="step-num">2</div><div class="step-body">
+        <p>En <code>App.jsx</code>, junto al <code>import Navbar from './Navbar.jsx'</code> que ya existe, agregar una segunda línea de import para <code>Footer</code>:</p>
+        <div class="code-wrap"><div class="code-header"><div class="code-dots"><span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span></div><span class="code-filename">frontend-react/src/App.jsx</span><span class="code-tag green">agregar</span></div><pre><span class="k">import</span> Navbar <span class="k">from</span> <span class="s">'./Navbar.jsx'</span>
+<span class="edit"><span class="k">import</span> Footer <span class="k">from</span> <span class="s">'./Footer.jsx'</span></span>
+
+<span class="k">function</span> <span class="f">App</span>() {
+  ...</pre></div>
+        <div class="callout ok"><span class="callout-icon">✅</span><span><strong>Cómo verificar:</strong> ni <code>Footer.jsx</code> ni <code>App.jsx</code> deben mostrar líneas rojas en VS Code — el import ya está listo para usarse en el Ejercicio 3.</span></div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ════ EJERCICIO 3 ════ -->
+  <section class="section" id="ej3" data-step="ej3">
+    <div class="section-header">
+      <span class="step-badge teal">Ejercicio 3</span>
+      <h2 class="section-title">App.jsx ensamblando 2 componentes</h2>
+    </div>
+    <p style="color:var(--txt-dim);font-size:14px;margin-bottom:20px;">Último paso: reemplazar el bloque viejo del footer (donde quedó el espacio vacío tras cortarlo) por <code>&lt;Footer /&gt;</code>.</p>
+
+    <div class="step-list">
+      <div class="step-item"><div class="step-num">1</div><div class="step-body">
+        <p>En el espacio vacío dentro del <code>return (...)</code> de <code>App.jsx</code> donde antes estaba el <code>&lt;footer&gt;</code>, escribir:</p>
+        <div class="code-wrap"><div class="code-header"><div class="code-dots"><span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span></div><span class="code-filename">frontend-react/src/App.jsx</span><span class="code-tag green">escribir en el espacio vacío</span></div><pre><span class="edit">&lt;Footer /&gt;</span></pre></div>
+
+        <p style="color:var(--txt-dim);font-size:14px;margin:14px 0 6px;"><code>App.jsx</code> completo debe quedar ensamblando ambos componentes:</p>
+        <div class="code-wrap"><div class="code-header"><div class="code-dots"><span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span></div><span class="code-filename">frontend-react/src/App.jsx</span><span class="code-tag blue">cómo queda</span></div><pre><span class="k">import</span> Navbar <span class="k">from</span> <span class="s">'./Navbar.jsx'</span>
+<span class="k">import</span> Footer <span class="k">from</span> <span class="s">'./Footer.jsx'</span>
+
+<span class="k">function</span> <span class="f">App</span>() {
+  <span class="k">return</span> (
+
+  &lt;<span class="f">main</span> <span class="n">className</span>=<span class="s">"max-w-6xl mx-auto px-6 py-10 flex flex-col gap-10"</span>&gt;
+
+    <span class="edit">&lt;Navbar /&gt;</span>
+
+    &lt;<span class="f">section</span> <span class="n">className</span>=<span class="s">"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"</span>&gt;
+      <span class="c">{/* Tarjetas — sin cambios */}</span>
+    &lt;/<span class="f">section</span>&gt;
+
+    <span class="edit">&lt;Footer /&gt;</span>
+
+  &lt;/<span class="f">main</span>&gt;
+  )
+}
+
+<span class="k">export default</span> App</pre></div>
+
+        <div class="callout ok"><span class="callout-icon">✅</span><span><strong>Cómo verificar:</strong> en <code>localhost:5173</code>, el footer se ve exactamente igual que antes. <code>App.jsx</code> ya no tiene ni <code>&lt;nav&gt;</code> ni <code>&lt;footer&gt;</code> escritos directamente — solo los usa como <code>&lt;Navbar /&gt;</code> y <code>&lt;Footer /&gt;</code>.</span></div>
+      </div></div>
+    </div>
+
+    <div class="callout teal" style="margin-top:24px;">
+      <span class="callout-icon">🚀</span>
+      <span><strong>Recordatorio:</strong> este ejercicio (Footer.jsx) es de práctica — se puede dejar en el proyecto, no afecta el entregable obligatorio de la guía 02 (Navbar.jsx).</span>
+    </div>
+  </section>
+
+  <!-- ════ CHECKLIST ════ -->
+  <section class="section" id="checklist" data-step="checklist">
+    <div class="section-header">
+      <span class="step-badge green">Cierre</span>
+      <h2 class="section-title">Checklist de los ejercicios</h2>
+    </div>
+    <ul class="checklist" id="checklist-ul">
+      <li data-check="chk1"><span class="check-box"></span><span><strong>src/Footer.jsx</strong> creado, con la función Footer() devolviendo el JSX del footer</span></li>
+      <li data-check="chk2"><span class="check-box"></span><span>Footer.jsx exportado con export default, App.jsx lo importa</span></li>
+      <li data-check="chk3"><span class="check-box"></span><span>App.jsx usa &lt;Navbar /&gt; y &lt;Footer /&gt; — sin errores en consola ni en la terminal de Vite</span></li>
+    </ul>
+  </section>
+
+  <div class="submit-wrap">
+    <button class="submit-btn" id="btn-enviar">
+      <span>📤</span><span>Enviar todo mi progreso</span>
+    </button>
+    <div class="submit-status" id="submit-status"></div>
+  </div>
+
+</main>
+
+<script>
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('copy', e => e.preventDefault());
+document.addEventListener('cut', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && ['c','x','a','s','p'].includes(e.key.toLowerCase())) e.preventDefault();
+});
+
+const STEPS = ['ej1','ej2','ej3','checklist'];
+const KEY   = 's21-ejercicios-progress';
+
+function getState() { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return {}; } }
+function saveState(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch {} }
+
+function updateProgress() {
+  const state = getState();
+  const done  = STEPS.filter(s => state[s]).length;
+  const pct   = Math.round((done / STEPS.length) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-txt').textContent  = done + ' / ' + STEPS.length;
+}
+
+function renderButtons() {
+  const state = getState();
+  STEPS.forEach(id => {
+    const section = document.querySelector(`[data-step="${id}"]`);
+    if (!section || section.querySelector('.complete-btn')) return;
+    const btn = document.createElement('button');
+    btn.className = 'complete-btn' + (state[id] ? ' done' : '');
+    btn.dataset.step = id;
+    btn.innerHTML = `<span class="btn-icon">${state[id] ? '✅' : '🎯'}</span>
+      <span class="btn-txt">${state[id] ? '¡Ejercicio completado!' : 'Marcar como completado'}</span>
+      <span class="btn-badge">LISTO</span>`;
+    if (!state[id]) btn.addEventListener('click', () => completeStep(id, btn));
+    section.appendChild(btn);
+    const nav = document.querySelector(`.nav-item[href="#${id}"]`);
+    if (nav && state[id]) nav.classList.add('done');
+  });
+}
+
+function completeStep(id, btn) {
+  const state = getState(); state[id] = true; saveState(state);
+  btn.classList.add('done');
+  btn.querySelector('.btn-icon').textContent = '✅';
+  btn.querySelector('.btn-txt').textContent  = '¡Ejercicio completado!';
+  const nav = document.querySelector(`.nav-item[href="#${id}"]`);
+  if (nav) nav.classList.add('done');
+  updateProgress();
+  launchConfetti(STEPS.filter(s => state[s]).length === STEPS.length);
+}
+
+function launchConfetti(big) {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const colors = ['#3b82f6','#2dd4bf','#22c55e','#f59e0b','#a78bfa','#f87171'];
+  const count  = big ? 180 : 60;
+  const parts  = Array.from({length: count}, () => ({
+    x: canvas.width * (big ? Math.random() : .5 + (Math.random()-.5)*.4),
+    y: big ? -10 : canvas.height * .4,
+    r: Math.random() * 7 + 3, color: colors[Math.floor(Math.random() * colors.length)],
+    tilt: 0, tiltAngle: 0, tiltSpeed: Math.random()*.1+.05,
+    vx: Math.random()*4-2, vy: Math.random()*3+2
+  }));
+  let frame = 0; const total = big ? 160 : 80;
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    parts.forEach(p => {
+      ctx.beginPath(); ctx.fillStyle = p.color;
+      ctx.ellipse(p.x, p.y, p.r, p.r*.4, p.tilt, 0, Math.PI*2); ctx.fill();
+      p.x += p.vx; p.y += p.vy; p.tiltAngle += p.tiltSpeed; p.tilt = Math.sin(p.tiltAngle)*12; p.vy += .08;
+    });
+    if (++frame < total) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  draw();
+}
+
+function getChecklistState() { try { return JSON.parse(localStorage.getItem('s21-ejercicios-checklist') || '{}'); } catch { return {}; } }
+function saveChecklistState(s) { try { localStorage.setItem('s21-ejercicios-checklist', JSON.stringify(s)); } catch {} }
+
+function renderChecklist() {
+  const state = getChecklistState();
+  document.querySelectorAll('#checklist-ul li').forEach(li => {
+    const id = li.dataset.check;
+    if (state[id]) { li.classList.add('marcado'); li.querySelector('.check-box').textContent = '✓'; }
+    li.addEventListener('click', () => {
+      const s = getChecklistState();
+      s[id] = !s[id];
+      saveChecklistState(s);
+      li.classList.toggle('marcado', s[id]);
+      li.querySelector('.check-box').textContent = s[id] ? '✓' : '';
+      const allChecked = Array.from(document.querySelectorAll('#checklist-ul li')).every(el => s[el.dataset.check]);
+      if (allChecked) launchConfetti(false);
+    });
+  });
+}
+
+const sections = document.querySelectorAll('.section');
+const navItems = document.querySelectorAll('.nav-item');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navItems.forEach(n => n.classList.remove('active'));
+      const a = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { threshold: 0.25 });
+sections.forEach(s => obs.observe(s));
+
+renderButtons();
+updateProgress();
+renderChecklist();
+
+/* ═══ Selector de aprendiz + envío a Google Sheets (Apps Script) ═══ */
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbyhq0L17BN2xp5FnAHuRXugHBYE4P9-4DvdWU4mR-1FnVBGUoBCGIkZw5O2ZEVu7T8P/exec';
+const ARCHIVO_ACTUAL  = '03_EJERCICIOS_PRACTICA_S21';
+const APRENDIZ_KEY    = 'sena-aprendiz-nombre';
+
+const selectAprendiz = document.getElementById('aprendiz-select');
+const nombreGuardado = localStorage.getItem(APRENDIZ_KEY);
+if (nombreGuardado) selectAprendiz.value = nombreGuardado;
+selectAprendiz.addEventListener('change', () => {
+  localStorage.setItem(APRENDIZ_KEY, selectAprendiz.value);
+  selectAprendiz.classList.remove('falta');
+});
+
+const btnEnviar = document.getElementById('btn-enviar');
+const statusEl  = document.getElementById('submit-status');
+
+btnEnviar.addEventListener('click', async () => {
+  const aprendiz = selectAprendiz.value;
+  if (!aprendiz) {
+    selectAprendiz.classList.add('falta');
+    statusEl.textContent = 'Selecciona tu nombre arriba antes de enviar.';
+    statusEl.className = 'submit-status err';
+    selectAprendiz.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  const state = getState();
+  const pasosCompletados = STEPS.filter(s => state[s]);
+
+  btnEnviar.disabled = true;
+  statusEl.textContent = 'Enviando...';
+  statusEl.className = 'submit-status';
+
+  try {
+    await fetch(URL_APPS_SCRIPT, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        aprendiz: aprendiz,
+        archivo: ARCHIVO_ACTUAL,
+        completados: pasosCompletados.length,
+        total: STEPS.length,
+        pasos: pasosCompletados
+      })
+    });
+    statusEl.textContent = '✅ Progreso enviado — ' + pasosCompletados.length + '/' + STEPS.length + ' pasos.';
+    statusEl.className = 'submit-status ok';
+  } catch (err) {
+    statusEl.textContent = '❌ No se pudo enviar. Revisa tu conexión e intenta de nuevo.';
+    statusEl.className = 'submit-status err';
+  } finally {
+    btnEnviar.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
